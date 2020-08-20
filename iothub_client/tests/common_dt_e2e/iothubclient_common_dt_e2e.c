@@ -433,7 +433,7 @@ void dt_e2e_send_reported_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, IOTHUB
         if (modelId != NULL)
         {
         	const char *modelIdOnHub = json_object_dotget_string(root_object, "modelId");
-        	ASSERT_ARE_EQUAL(char_ptr, modelIdOnHub, modelId);
+        	ASSERT_ARE_EQUAL(char_ptr, modelId, modelIdOnHub);
         }
 
         (void) Unlock(device->lock);
