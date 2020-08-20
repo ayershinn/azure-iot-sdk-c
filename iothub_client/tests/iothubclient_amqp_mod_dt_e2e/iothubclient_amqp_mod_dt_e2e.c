@@ -23,7 +23,7 @@ TEST_SUITE_CLEANUP(TestClassCleanup)
 //
 TEST_FUNCTION(IoTHub_AMQP_Module_SendReported_e2e_sas)
 {
-    dt_e2e_send_reported_test(AMQP_Protocol, IOTHUB_ACCOUNT_AUTH_CONNSTRING);
+    dt_e2e_send_reported_test(AMQP_Protocol, IOTHUB_ACCOUNT_AUTH_CONNSTRING, NULL);
 }
 
 TEST_FUNCTION(IoTHub_AMQP_Module_GetFullDesired_e2e_sas)
@@ -36,7 +36,7 @@ TEST_FUNCTION(IoTHub_AMQP_Module_GetFullDesired_e2e_sas)
 //
 TEST_FUNCTION(IoTHub_AMQP_WS_Module_SendReported_e2e_sas)
 {
-    dt_e2e_send_reported_test(AMQP_Protocol_over_WebSocketsTls, IOTHUB_ACCOUNT_AUTH_CONNSTRING);
+    dt_e2e_send_reported_test(AMQP_Protocol_over_WebSocketsTls, IOTHUB_ACCOUNT_AUTH_CONNSTRING, NULL);
 }
 
 TEST_FUNCTION(IoTHub_AMQP_WS_Module_GetFullDesired_e2e_sas)

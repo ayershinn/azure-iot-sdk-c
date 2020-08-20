@@ -208,7 +208,7 @@ static void setoption_on_device_or_module(const char * optionName, const void * 
     ASSERT_ARE_EQUAL(IOTHUB_CLIENT_RESULT, IOTHUB_CLIENT_OK, result, errorMessage);
 }
 
-static void dt_e2e_create_client_handle(IOTHUB_PROVISIONED_DEVICE* deviceToUse, IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol)
+static void dt_e2e_create_client_handle(IOTHUB_PROVISIONED_DEVICE* deviceToUse, IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, const char* modelId)
 {
     ASSERT_IS_NULL(iothub_deviceclient_handle, "iothub_deviceclient_handle is non-NULL on test initialization");
     ASSERT_IS_NULL(iothub_moduleclient_handle, "iothub_moduleclient_handle is non-NULL on test initialization");
@@ -232,6 +232,11 @@ static void dt_e2e_create_client_handle(IOTHUB_PROVISIONED_DEVICE* deviceToUse, 
     {
         setoption_on_device_or_module(OPTION_X509_CERT, deviceToUse->certificate, "Could not set the device x509 certificate");
         setoption_on_device_or_module(OPTION_X509_PRIVATE_KEY, deviceToUse->primaryAuthentication, "Could not set the device x509 privateKey");
+    }
+
+    if (modelId != NULL)
+    {
+        setoption_on_device_or_module(OPTION_MODEL_ID, modelId, "Could not set the device modelId");
     }
 
     bool trace = true;
@@ -347,7 +352,7 @@ static char* dt_e2e_get_twin(IOTHUB_SERVICE_CLIENT_DEVICE_TWIN_HANDLE serviceCli
 }
 
 
-void dt_e2e_send_reported_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, IOTHUB_ACCOUNT_AUTH_METHOD accountAuthMethod)
+void dt_e2e_send_reported_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, IOTHUB_ACCOUNT_AUTH_METHOD accountAuthMethod, const char* modelId)
 {
     // arrange
     IOTHUB_PROVISIONED_DEVICE* deviceToUse;
@@ -364,7 +369,7 @@ void dt_e2e_send_reported_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, IOTHUB
     ASSERT_IS_NOT_NULL(device, "failed to create the device client data");
 
     // Create the IoT Hub Data
-    dt_e2e_create_client_handle(deviceToUse, protocol);
+    dt_e2e_create_client_handle(deviceToUse, protocol, modelId);
 
     // generate the payload
     char *buffer = malloc_and_fill_reported_payload(device->string_property, device->integer_property);
@@ -424,6 +429,12 @@ void dt_e2e_send_reported_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, IOTHUB
 
         int integer_property = (int) json_object_dotget_number(root_object, "properties.reported.integer_property");
         ASSERT_ARE_EQUAL(int, device->integer_property, integer_property, "integer data retrieved differs from reported");
+
+        if (modelId != NULL)
+        {
+        	const char *modelIdOnHub = json_object_dotget_string(root_object, "modelId");
+        	ASSERT_ARE_EQUAL(char_ptr, modelIdOnHub, modelId);
+        }
 
         (void) Unlock(device->lock);
 
@@ -631,7 +642,7 @@ void dt_e2e_get_complete_desired_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol,
     DEVICE_DESIRED_DATA *device = device_desired_init();
     ASSERT_IS_NOT_NULL(device, "failed to create the device client data");
 
-    dt_e2e_create_client_handle(deviceToUse, protocol);
+    dt_e2e_create_client_handle(deviceToUse, protocol, NULL);
 
     // subscribe
     setdevicetwincallback_on_device_or_module(deviceTwinCallback, device);
@@ -793,7 +804,7 @@ void dt_e2e_get_twin_async_test(IOTHUB_CLIENT_TRANSPORT_PROVIDER protocol, IOTHU
     DEVICE_DESIRED_DATA *device = device_desired_init();
     ASSERT_IS_NOT_NULL(device, "failed to create the device client data");
 
-    dt_e2e_create_client_handle(deviceToUse, protocol);
+    dt_e2e_create_client_handle(deviceToUse, protocol, NULL);
 
     if (deviceToUse->moduleConnectionString != NULL)
     {
@@ -854,7 +865,7 @@ void dt_e2e_send_reported_test_svc_fault_ctrl_kill_Tcp(IOTHUB_CLIENT_TRANSPORT_P
     ASSERT_IS_NOT_NULL(device, "failed to create the device client data");
 
     // Create the IoT Hub Data
-    dt_e2e_create_client_handle(deviceToUse, protocol);
+    dt_e2e_create_client_handle(deviceToUse, protocol, NULL);
 
     // generate the payload
     char *buffer = malloc_and_fill_reported_payload(device->string_property, device->integer_property);
@@ -965,7 +976,7 @@ void dt_e2e_get_complete_desired_test_svc_fault_ctrl_kill_Tcp(IOTHUB_CLIENT_TRAN
     ASSERT_IS_NOT_NULL(device, "failed to create the device client data");
 
     // Create the IoT Hub Data
-    dt_e2e_create_client_handle(deviceToUse, protocol);
+    dt_e2e_create_client_handle(deviceToUse, protocol, NULL);
 
 
     // subscribe
